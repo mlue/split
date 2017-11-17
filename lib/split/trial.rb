@@ -3,6 +3,7 @@ module Split
   class Trial
     attr_accessor :experiment
     attr_accessor :metadata
+    attr_accessor :version
 
     def initialize(attrs = {})
       self.experiment   = attrs.delete(:experiment)
@@ -11,6 +12,17 @@ module Split
 
       @user             = attrs.delete(:user)
       @options          = attrs
+
+      if @user
+        key_for_experiment = @user.keys.find { |k| k.match(Regexp.new("^#{experiment.name}"))}
+        if key_for_experiment
+          self.version = key_for_experiment.split(":").last
+        else
+          self.version = 0
+        end
+      else
+        self.version = 0
+      end
 
       @alternative_choosen = false
     end
@@ -63,12 +75,12 @@ module Split
       elsif @experiment.has_winner?
         self.alternative = @experiment.winner
       else
-        cleanup_old_versions
+        #cleanup_old_versions
 
         if exclude_user?
           self.alternative = @experiment.control
         else
-          value = @user[@experiment.key]
+          value = @user.active_experiments[@experiment.name]
           if value
             self.alternative = value
           else
@@ -82,7 +94,7 @@ module Split
         end
       end
 
-      @user[@experiment.key] = alternative.name if should_store_alternative?
+      @user["#{@experiment.key}:#{version}"] = alternative.name if should_store_alternative?
       @alternative_choosen = true
       run_callback context, Split.configuration.on_trial unless @options[:disabled] || Split.configuration.disabled?
       alternative
