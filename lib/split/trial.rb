@@ -94,7 +94,7 @@ module Split
         end
       end
 
-      @user["#{@experiment.key}:#{version}"] = alternative.name if should_store_alternative?
+      @user[@experiment.key] = alternative.name if should_store_alternative?
       @alternative_choosen = true
       run_callback context, Split.configuration.on_trial unless @options[:disabled] || Split.configuration.disabled?
       alternative

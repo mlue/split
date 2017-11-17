@@ -48,6 +48,19 @@ module Split
       experiment_pairs
     end
 
+    def key_for_experiment(experiment)
+      keys.find { |k| k.match(Regexp.new("^#{experiment.name}"))}
+    end
+
+    def version_for_experiment(experiment)
+      kfe = key_for_experiment(experiment)
+      if kfe
+        kfe.split(":").last
+      else
+        0
+      end
+    end
+
     private
 
     def keys_without_experiment(keys, experiment_key)

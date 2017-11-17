@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require 'spec_helper'
+require 'pry'
 
 # TODO change some of these tests to use Rack::Test
 
@@ -393,6 +394,7 @@ describe Split::Helper do
       experiment = Split::ExperimentCatalog.find :my_experiment
 
       ab_finished :my_experiment
+      binding.pry
       expect(ab_user[experiment.key]).to eq(alternative)
       expect(ab_user[experiment.finished_key]).to eq(true)
     end
