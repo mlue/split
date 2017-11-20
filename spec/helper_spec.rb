@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 require 'spec_helper'
-require 'pry'
 
 # TODO change some of these tests to use Rack::Test
 
@@ -144,7 +143,7 @@ describe Split::Helper do
 
       it "should store the forced alternative" do
         @params = { 'ab_test' => { 'link_color' => 'blue' } }
-        expect(ab_user).to receive(:[]=).with('link_color:0', 'blue')
+        expect(ab_user).to receive(:[]=).with('link_color', 'blue')
         ab_test('link_color', 'blue', 'red')
       end
     end
@@ -218,7 +217,7 @@ describe Split::Helper do
       end
 
       context "when user already has experiment" do
-        let(:mock_user){ Split::User.new(self, {'test_0:0' => 'test-alt'}) }
+        let(:mock_user){ Split::User.new(self, {'test_0' => 'test-alt'}) }
         before{
           Split.configure do |config|
             config.allow_multiple_experiments = 'control'
@@ -229,7 +228,6 @@ describe Split::Helper do
 
         it "should restore previously selected alternative" do
           expect(ab_user.active_experiments.size).to eq 1
-          binding.pry
           expect(ab_test(:test_0, {'control' => 100}, {"test-alt" => 1})).to eq 'test-alt'
           expect(ab_test(:test_0, {'control' => 1}, {"test-alt" => 100})).to eq 'test-alt'
         end

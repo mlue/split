@@ -10,15 +10,6 @@ module Split
       @user = adapter || Split::Persistence.adapter.new(context)
     end
 
-    def [](key)
-      if key_without_version(key) == key
-        #if the key doesn't have version, return one with version
-        @user[key_for_experiment_name(key)]
-      else
-        @user[key]
-      end
-    end
-
     def cleanup_old_experiments!
       keys_without_finished(user.keys).each do |key|
         experiment = ExperimentCatalog.find key_without_version(key)
@@ -57,24 +48,7 @@ module Split
       experiment_pairs
     end
 
-    def key_for_experiment(experiment)
-      keys.find { |k| k.match(Regexp.new("^#{experiment.name}"))}
-    end
-
-    def version_for_experiment(experiment)
-      kfe = key_for_experiment(experiment)
-      if kfe
-        kfe.split(":").last
-      else
-        0
-      end
-    end
-
     private
-
-    def key_for_experiment_name(experiment_name)
-      keys.find { |k| k.match(Regexp.new("^#{experiment_name}"))}
-    end
 
     def keys_without_experiment(keys, experiment_key)
       keys.reject { |k| k.match(Regexp.new("^#{experiment_key}(:finished)?$")) }

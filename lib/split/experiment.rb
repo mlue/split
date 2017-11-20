@@ -35,8 +35,8 @@ module Split
       set_alternatives_and_options(options)
     end
 
-    def self.finished_key(key, versogn)
-      "#{key.split(":")[0..-2].join}:#{versogn}:finished"
+    def self.finished_key(key)
+      "#{key}:finished"
     end
 
     def set_alternatives_and_options(options)
@@ -199,16 +199,20 @@ module Split
       @version = redis.incr("#{name}:version")
     end
 
-    def key(versogn = nil)
-      "#{name}:#{versogn || version}"
+    def key
+      if version.to_i > 0
+        "#{name}:#{version}"
+      else
+        name
+      end
     end
 
     def goals_key
       "#{name}:goals"
     end
 
-    def finished_key(versogn = nil)
-      "#{self.class.finished_key(key,versogn || version)}"
+    def finished_key
+      self.class.finished_key(key)
     end
 
     def metadata_key

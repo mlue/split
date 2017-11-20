@@ -3,7 +3,6 @@ module Split
   class Trial
     attr_accessor :experiment
     attr_accessor :metadata
-    attr_accessor :version
 
     def initialize(attrs = {})
       self.experiment   = attrs.delete(:experiment)
@@ -12,17 +11,6 @@ module Split
 
       @user             = attrs.delete(:user)
       @options          = attrs
-
-      if @user
-        key_for_experiment = @user.keys.find { |k| k.match(Regexp.new("^#{experiment.name}"))}
-        if key_for_experiment
-          self.version = key_for_experiment.split(":").last
-        else
-          self.version = 0
-        end
-      else
-        self.version = 0
-      end
 
       @alternative_choosen = false
     end
@@ -75,12 +63,12 @@ module Split
       elsif @experiment.has_winner?
         self.alternative = @experiment.winner
       else
-        #cleanup_old_versions
+        cleanup_old_versions
 
         if exclude_user?
           self.alternative = @experiment.control
         else
-          value = @user.active_experiments[@experiment.name]
+          value = @user[@experiment.key]
           if value
             self.alternative = value
           else
